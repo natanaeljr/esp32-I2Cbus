@@ -1,3 +1,3 @@
 .vscode
-build
-sdkconfig.old
+examples/build
+examples/sdkconfig.old

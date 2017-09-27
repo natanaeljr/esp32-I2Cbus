@@ -4,6 +4,6 @@
 #
 
 PROJECT_NAME := I2Cbus
-EXTRA_COMPONENT_DIRS := examples
+EXTRA_COMPONENT_DIRS := ${HOME}/esp/libraries/I2Cbus
 
 include $(IDF_PATH)/make/project.mk
