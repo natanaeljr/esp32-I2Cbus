@@ -3,6 +3,18 @@
 #include "driver/gpio.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "sdkconfig.h"
+
+
+#if defined CONFIG_I2CBUS_LOG_READWRITES
+#if defined CONFIG_I2CBUS_LOG_RW_LEVEL_INFO
+#define I2CBUS_LOG_READWRITE    ESP_LOGI
+#elif defined CONFIG_I2CBUS_LOG_RW_LEVEL_DEBUG
+#define I2CBUS_LOG_READWRITE    ESP_LOGD
+#else
+#define I2CBUS_LOG_READWRITE    ESP_LOGV
+#endif
+#endif
 
 
 static const char* TAG = "I2Cbus";
@@ -17,7 +29,7 @@ I2Cbus I2Cbus1(I2C_NUM_1);
 /*******************************************************************************
  * SETUP
  ******************************************************************************/
-I2Cbus::I2Cbus(i2c_port_t port) : port(port), ticksToWait(pdMS_TO_TICKS(TIMEOUT_DEFAULT)) {
+I2Cbus::I2Cbus(i2c_port_t port) : port(port), ticksToWait(pdMS_TO_TICKS(I2CBUS_TIMEOUT_DEFAULT)) {
 }
 
 esp_err_t I2Cbus::begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num, uint32_t clk_speed) {
@@ -83,21 +95,21 @@ esp_err_t I2Cbus::writeBytes(uint8_t devAddr, uint8_t regAddr, size_t length, co
     i2c_master_stop(cmd);
     esp_err_t err = i2c_master_cmd_begin(port, cmd, (timeout < 0 ? ticksToWait : pdMS_TO_TICKS(timeout)));
     i2c_cmd_link_delete(cmd);
-    #if defined I2C_LOG_READWRITES
+    #if defined CONFIG_I2CBUS_LOG_READWRITES
         if (!err) { 
             char str[length*5+1]; 
             for(int i = 0; i < length; i++) 
                 sprintf(str+i*5, "0x%s%X ", (data[i] < 0x10 ? "0" : ""), data[i]);
-            I2C_LOG_READWRITES(TAG, "[slave:0x%X] Write %d bytes to register 0x%X, data: %s", devAddr, length, regAddr, str);
+            I2CBUS_LOG_READWRITE(TAG, "%d [slave:0x%X] Write %d bytes to register 0x%X, data: %s", (port == I2C_NUM_0 ? 0 : 1), devAddr, length, regAddr, str);
         }
     #endif
-    #if defined I2C_LOG_ERRORS
-        #ifdef I2C_LOG_READWRITES
+    #if defined CONFIG_I2CBUS_LOG_ERRORS
+        #ifdef CONFIG_I2CBUS_LOG_READWRITES
             else {
         #else
             if (err) {
         #endif
-        ESP_LOGE(TAG, "[slave:0x%X] Failed to write %d bytes to register 0x%X, error: 0x%X", devAddr, length, regAddr, err);
+        ESP_LOGE(TAG, "%d [slave:0x%X] Failed to write %d bytes to register 0x%X, error: 0x%X", (port == I2C_NUM_0 ? 0 : 1), devAddr, length, regAddr, err);
         }
     #endif
     return err;
@@ -140,21 +152,21 @@ esp_err_t I2Cbus::readBytes(uint8_t devAddr, uint8_t regAddr, size_t length, uin
     i2c_master_stop(cmd);
     esp_err_t err = i2c_master_cmd_begin(port, cmd, (timeout < 0 ? ticksToWait : pdMS_TO_TICKS(timeout)));
     i2c_cmd_link_delete(cmd);
-    #if defined I2C_LOG_READWRITES
+    #if defined CONFIG_I2CBUS_LOG_READWRITES
         if (!err) { 
             char str[length*5+1]; 
             for(int i = 0; i < length; i++) 
             sprintf(str+i*5, "0x%s%X ", (data[i] < 0x10 ? "0" : ""), data[i]);
-            I2C_LOG_READWRITES(TAG, "[slave:0x%X] Read %d bytes from register 0x%X, data: %s", devAddr, length, regAddr, str);
+            I2CBUS_LOG_READWRITE(TAG, "%d [slave:0x%X] Read %d bytes from register 0x%X, data: %s", (port == I2C_NUM_0 ? 0 : 1), devAddr, length, regAddr, str);
         }
     #endif
-    #if defined I2C_LOG_ERRORS
-        #ifdef I2C_LOG_READWRITES
+    #if defined CONFIG_I2CBUS_LOG_ERRORS
+        #ifdef CONFIG_I2CBUS_LOG_READWRITES
             else {
         #else
             if (err) {
         #endif
-        ESP_LOGE(TAG, "[slave:0x%X] Failed to read %d bytes from register 0x%X, error: 0x%X", devAddr, length, regAddr, err);
+        ESP_LOGE(TAG, "%d [slave:0x%X] Failed to read %d bytes from register 0x%X, error: 0x%X", (port == I2C_NUM_0 ? 0 : 1), devAddr, length, regAddr, err);
         }
     #endif
     return err;
@@ -171,8 +183,8 @@ esp_err_t I2Cbus::testConnection(uint8_t devAddr) {
     i2c_master_stop(cmd);
     esp_err_t err = i2c_master_cmd_begin(port, cmd, ticksToWait);
     i2c_cmd_link_delete(cmd);
-    #if defined I2C_ESP_LOG
-        if (!err) I2C_ESP_LOG(TAG, "slave devAddr(0x%X) acknowledged transfer", devAddr);
+    #if defined CONFIG_I2CBUS_LOG_READWRITES
+        if (!err) I2CBUS_LOG_READWRITE(TAG, "slave address(0x%X) acknowledged transfer", devAddr);
     #endif
     return err;
 }

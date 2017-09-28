@@ -5,15 +5,10 @@
 #include "driver/gpio.h"
 #include "esp_err.h"
 
-/*************************************
- * CONFIGS
- *************************************/
-#define CLOCKSPEED_DEFAULT  (100000U)   /*!< Clock speed in Hz, default: 100KHz */
-#define TIMEOUT_DEFAULT     (1000)      /*!< Timeout in milliseconds */
-#define I2C_LOG_ERRORS      (true)      /*!< Logs any read/write error that ocurrs. Uncomment for disable*/
-#define I2C_LOG_READWRITES  ESP_LOGV    /*!< Logs all successful read/write operations performed.
-                                             You can set the ESP-log-level here. Uncomment for disable.*/
 
+// DEFAULTS
+#define I2CBUS_CLOCKSPEED_DEFAULT  (100000U)   /*!< Clock speed in Hz, default: 100KHz */
+#define I2CBUS_TIMEOUT_DEFAULT     (1000)      /*!< Timeout in milliseconds */
 
 // Receive Acknowledge
 #define ACK_CHECK_ENABLE    (0x1)       /*!< Every write is checked by default*/
@@ -44,10 +39,10 @@ public:
      *                       - ESP_ERR_INVALID_ARG Parameter error
      *                       - ESP_FAIL Driver install error
      */
-    esp_err_t begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num, uint32_t clk_speed = CLOCKSPEED_DEFAULT);
+    esp_err_t begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num, uint32_t clk_speed = I2CBUS_CLOCKSPEED_DEFAULT);
     esp_err_t begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num, 
                     gpio_pullup_t sda_pullup_en, gpio_pullup_t scl_pullup_en, 
-                    uint32_t clk_speed = CLOCKSPEED_DEFAULT);
+                    uint32_t clk_speed = I2CBUS_CLOCKSPEED_DEFAULT);
 
     /**
      * Stop I2C bus and unninstall driver
