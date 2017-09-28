@@ -22,7 +22,7 @@ void app_main() {
     
     I2Cbus0.begin(GPIO_NUM_21, GPIO_NUM_22, 400000U);
 
-    I2Cbus0.writeBit(0x68, 0x6B, 6, false);
+    I2Cbus0.writeBit(0x69, 0x6B, 6, false);
     
     while(true) {
         uint8_t buffer[2];

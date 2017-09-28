@@ -100,7 +100,7 @@ esp_err_t I2Cbus::writeBytes(uint8_t devAddr, uint8_t regAddr, size_t length, co
             char str[length*5+1]; 
             for(int i = 0; i < length; i++) 
                 sprintf(str+i*5, "0x%s%X ", (data[i] < 0x10 ? "0" : ""), data[i]);
-            I2CBUS_LOG_READWRITE(TAG, "%d [slave:0x%X] Write %d bytes to register 0x%X, data: %s", (port == I2C_NUM_0 ? 0 : 1), devAddr, length, regAddr, str);
+            I2CBUS_LOG_READWRITE(TAG, "[port:%d, slave:0x%X] Write %d bytes to register 0x%X, data: %s", port, devAddr, length, regAddr, str);
         }
     #endif
     #if defined CONFIG_I2CBUS_LOG_ERRORS
@@ -109,7 +109,7 @@ esp_err_t I2Cbus::writeBytes(uint8_t devAddr, uint8_t regAddr, size_t length, co
         #else
             if (err) {
         #endif
-        ESP_LOGE(TAG, "%d [slave:0x%X] Failed to write %d bytes to register 0x%X, error: 0x%X", (port == I2C_NUM_0 ? 0 : 1), devAddr, length, regAddr, err);
+        ESP_LOGE(TAG, "[port:%d, slave:0x%X] Failed to write %d bytes to register 0x%X, error: 0x%X", port, devAddr, length, regAddr, err);
         }
     #endif
     return err;
@@ -157,7 +157,7 @@ esp_err_t I2Cbus::readBytes(uint8_t devAddr, uint8_t regAddr, size_t length, uin
             char str[length*5+1]; 
             for(int i = 0; i < length; i++) 
             sprintf(str+i*5, "0x%s%X ", (data[i] < 0x10 ? "0" : ""), data[i]);
-            I2CBUS_LOG_READWRITE(TAG, "%d [slave:0x%X] Read %d bytes from register 0x%X, data: %s", (port == I2C_NUM_0 ? 0 : 1), devAddr, length, regAddr, str);
+            I2CBUS_LOG_READWRITE(TAG, "[port:%d, slave:0x%X] Read %d bytes from register 0x%X, data: %s", port, devAddr, length, regAddr, str);
         }
     #endif
     #if defined CONFIG_I2CBUS_LOG_ERRORS
@@ -166,7 +166,7 @@ esp_err_t I2Cbus::readBytes(uint8_t devAddr, uint8_t regAddr, size_t length, uin
         #else
             if (err) {
         #endif
-        ESP_LOGE(TAG, "%d [slave:0x%X] Failed to read %d bytes from register 0x%X, error: 0x%X", (port == I2C_NUM_0 ? 0 : 1), devAddr, length, regAddr, err);
+        ESP_LOGE(TAG, "[port:%d, slave:0x%X] Failed to read %d bytes from register 0x%X, error: 0x%X", port, devAddr, length, regAddr, err);
         }
     #endif
     return err;
