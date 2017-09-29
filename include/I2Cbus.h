@@ -106,7 +106,7 @@ public:
      *          - ESP_ERR_INVALID_STATE I2C driver not installed or not in master mode.
      *          - ESP_ERR_TIMEOUT Operation timeout because the bus is busy.]
      */
-    esp_err_t testConnection(uint8_t devAddr);
+    esp_err_t testConnection(uint8_t devAddr, int32_t timeout = -1);
 
     /**
      * I2C scanner utility, prints out all device devAddres found on I2Cbus.

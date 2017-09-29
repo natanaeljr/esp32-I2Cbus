@@ -176,16 +176,13 @@ esp_err_t I2Cbus::readBytes(uint8_t devAddr, uint8_t regAddr, size_t length, uin
 /*******************************************************************************
  * UTILS
  ******************************************************************************/
-esp_err_t I2Cbus::testConnection(uint8_t devAddr) {
+esp_err_t I2Cbus::testConnection(uint8_t devAddr, int32_t timeout) {
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (devAddr << 1) | I2C_MASTER_WRITE, ACK_CHECK_ENABLE);
     i2c_master_stop(cmd);
-    esp_err_t err = i2c_master_cmd_begin(port, cmd, ticksToWait);
+    esp_err_t err = i2c_master_cmd_begin(port, cmd, (timeout < 0 ? ticksToWait : pdMS_TO_TICKS(timeout)));
     i2c_cmd_link_delete(cmd);
-    #if defined CONFIG_I2CBUS_LOG_READWRITES
-        if (!err) I2CBUS_LOG_READWRITE(TAG, "slave address(0x%X) acknowledged transfer", devAddr);
-    #endif
     return err;
 }
 
@@ -193,7 +190,7 @@ void I2Cbus::scanner() {
     printf(LOG_COLOR_W "\n>> I2C scanning ..." LOG_RESET_COLOR "\n");
     uint8_t count = 0;
     for (size_t i = 0x3; i < 0x78; i++) {
-        if(testConnection(i) == ESP_OK){
+        if(testConnection(i) == ESP_OK) {
             printf(LOG_COLOR_W "- Device found at address 0x%X%s", i, LOG_RESET_COLOR "\n");
             count++;
         }
