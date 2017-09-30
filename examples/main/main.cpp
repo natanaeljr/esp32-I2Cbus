@@ -3,17 +3,15 @@
 #include "driver/gpio.h"
 #include "driver/i2c.h"
 #include "esp_log.h"
-// personal libs
-#include "I2Cbus.h"
 #include <stdint.h>
+
+#include "I2Cbus.h"
 
 #ifdef __cplusplus
 extern "C" {
     void app_main();
 }
 #endif
-
-static const char* TAG = {"app_main"};
 
 
 
@@ -33,4 +31,5 @@ void app_main() {
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
     
+    vTaskDelay(portMAX_DELAY);
 }

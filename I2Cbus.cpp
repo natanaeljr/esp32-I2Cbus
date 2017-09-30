@@ -6,15 +6,14 @@
 #include "sdkconfig.h"
 
 
-#if defined CONFIG_I2CBUS_LOG_READWRITES
-#if defined CONFIG_I2CBUS_LOG_RW_LEVEL_INFO
-#define I2CBUS_LOG_READWRITE    ESP_LOGI
+#if defined   CONFIG_I2CBUS_LOG_RW_LEVEL_INFO
+#define I2CBUS_LOG_RW(format, ... ) ESP_LOGI(TAG, format, ##__VA_ARGS__)
 #elif defined CONFIG_I2CBUS_LOG_RW_LEVEL_DEBUG
-#define I2CBUS_LOG_READWRITE    ESP_LOGD
-#else
-#define I2CBUS_LOG_READWRITE    ESP_LOGV
+#define I2CBUS_LOG_RW(format, ... ) ESP_LOGD(TAG, format, ##__VA_ARGS__)
+#elif defined CONFIG_I2CBUS_LOG_RW_LEVEL_VERBOSE
+#define I2CBUS_LOG_RW(format, ... ) ESP_LOGV(TAG, format, ##__VA_ARGS__)
 #endif
-#endif
+#define I2CBUS_LOGE(format, ... )   ESP_LOGE(TAG, format, ##__VA_ARGS__)
 
 
 static const char* TAG = "I2Cbus";
@@ -22,14 +21,18 @@ static const char* TAG = "I2Cbus";
 /*******************************************************************************
  * INSTANCES
  ******************************************************************************/
-I2Cbus I2Cbus0(I2C_NUM_0);
-I2Cbus I2Cbus1(I2C_NUM_1);
+I2Cbus I2Cbus0 = I2Cbus(I2C_NUM_0);
+I2Cbus I2Cbus1 = I2Cbus(I2C_NUM_1);
 
 
 /*******************************************************************************
  * SETUP
  ******************************************************************************/
 I2Cbus::I2Cbus(i2c_port_t port) : port(port), ticksToWait(pdMS_TO_TICKS(I2CBUS_TIMEOUT_DEFAULT)) {
+}
+
+I2Cbus::~I2Cbus() {
+    close();
 }
 
 esp_err_t I2Cbus::begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num, uint32_t clk_speed) {
@@ -100,16 +103,16 @@ esp_err_t I2Cbus::writeBytes(uint8_t devAddr, uint8_t regAddr, size_t length, co
             char str[length*5+1]; 
             for(int i = 0; i < length; i++) 
                 sprintf(str+i*5, "0x%s%X ", (data[i] < 0x10 ? "0" : ""), data[i]);
-            I2CBUS_LOG_READWRITE(TAG, "[port:%d, slave:0x%X] Write %d bytes to register 0x%X, data: %s", port, devAddr, length, regAddr, str);
+            I2CBUS_LOG_RW("[port:%d, slave:0x%X] Write %d bytes to register 0x%X, data: %s", port, devAddr, length, regAddr, str);
         }
     #endif
     #if defined CONFIG_I2CBUS_LOG_ERRORS
         #ifdef CONFIG_I2CBUS_LOG_READWRITES
             else {
         #else
-            if (err) {
+            if(err) {
         #endif
-        ESP_LOGE(TAG, "[port:%d, slave:0x%X] Failed to write %d bytes to register 0x%X, error: 0x%X", port, devAddr, length, regAddr, err);
+        I2CBUS_LOGE("[port:%d, slave:0x%X] Failed to write %d bytes to register 0x%X, error: 0x%X", port, devAddr, length, regAddr, err);
         }
     #endif
     return err;
@@ -157,16 +160,16 @@ esp_err_t I2Cbus::readBytes(uint8_t devAddr, uint8_t regAddr, size_t length, uin
             char str[length*5+1]; 
             for(int i = 0; i < length; i++) 
             sprintf(str+i*5, "0x%s%X ", (data[i] < 0x10 ? "0" : ""), data[i]);
-            I2CBUS_LOG_READWRITE(TAG, "[port:%d, slave:0x%X] Read %d bytes from register 0x%X, data: %s", port, devAddr, length, regAddr, str);
+            I2CBUS_LOG_RW("[port:%d, slave:0x%X] Read %d bytes from register 0x%X, data: %s", port, devAddr, length, regAddr, str);
         }
     #endif
     #if defined CONFIG_I2CBUS_LOG_ERRORS
         #ifdef CONFIG_I2CBUS_LOG_READWRITES
             else {
         #else
-            if (err) {
+            if(err) {
         #endif
-        ESP_LOGE(TAG, "[port:%d, slave:0x%X] Failed to read %d bytes from register 0x%X, error: 0x%X", port, devAddr, length, regAddr, err);
+        I2CBUS_LOGE("[port:%d, slave:0x%X] Failed to read %d bytes from register 0x%X, error: 0x%X", port, devAddr, length, regAddr, err);
         }
     #endif
     return err;

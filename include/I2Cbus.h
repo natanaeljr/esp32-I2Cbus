@@ -6,7 +6,7 @@
 #include "esp_err.h"
 
 
-// DEFAULTS
+// Defaults
 #define I2CBUS_CLOCKSPEED_DEFAULT  (100000U)   /*!< Clock speed in Hz, default: 100KHz */
 #define I2CBUS_TIMEOUT_DEFAULT     (1000)      /*!< Timeout in milliseconds */
 
@@ -26,6 +26,7 @@ private:
 
 public:
     I2Cbus(i2c_port_t port);
+    ~I2Cbus();
 
     /** *** I2C Begin ***
      * @brief  Config I2C bus and Install Driver
