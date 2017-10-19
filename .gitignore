@@ -1,4 +1,5 @@
 .vscode
-examples/build
-examples/sdkconfig
-examples/sdkconfig.old
+**/build
+**/sdkconfig
+**/sdkconfig.old
+NOTES

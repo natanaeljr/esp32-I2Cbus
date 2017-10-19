@@ -1,5 +1,5 @@
-#ifndef _I2CBUS_H_
-#define _I2CBUS_H_
+#ifndef _I2CBUS_HPP_
+#define _I2CBUS_HPP_
 
 #include "driver/i2c.h"
 #include "driver/gpio.h"
@@ -18,15 +18,22 @@
 #define NACK_LEVEL          (0x1)       /*!< Last reading is NACK*/
 
 
+class I2Cbus_t;
 
-class I2Cbus {
+// Default Objects
+extern I2Cbus_t I2Cbus0;        /*!< port: I2C_NUM_0 */
+extern I2Cbus_t I2Cbus1;        /*!< port: I2C_NUM_1 */
+
+
+
+class I2Cbus_t {
 private:
     i2c_port_t port;            /*!< I2C port: I2C_NUM_0 or I2C_NUM_1 */
     uint32_t ticksToWait;       /*!< Timeout in ticks for read and write */
 
 public:
-    I2Cbus(i2c_port_t port);
-    ~I2Cbus();
+    I2Cbus_t(i2c_port_t port);
+    ~I2Cbus_t();
 
     /** *** I2C Begin ***
      * @brief  Config I2C bus and Install Driver
@@ -110,15 +117,11 @@ public:
     esp_err_t testConnection(uint8_t devAddr, int32_t timeout = -1);
 
     /**
-     * I2C scanner utility, prints out all device devAddres found on I2Cbus.
+     * I2C scanner utility, prints out all device addresses found on I2Cbus.
      */
     void scanner();
 };
 
-
-// OBJECTS
-extern I2Cbus I2Cbus0;
-extern I2Cbus I2Cbus1;
 
 
 

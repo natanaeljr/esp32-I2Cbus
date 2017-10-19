@@ -5,7 +5,7 @@
 #include "esp_log.h"
 #include <stdint.h>
 
-#include "I2Cbus.h"
+#include "I2Cbus.hpp"
 
 #ifdef __cplusplus
 extern "C" {
