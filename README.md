@@ -65,4 +65,4 @@ You can change some library settings in menuconfig under components and I2Cbus.
 
 ---
 
-Copyright (c) 2017 Natanael Rabello
+Copyright © 2017 Natanael Josue Rabello, _natanael.rabello@outlook.com_
