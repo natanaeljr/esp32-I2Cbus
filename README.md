@@ -1,4 +1,5 @@
-# I2Cbus
+**I2Cbus**
+==========
 
 I2C interface library for working with **ESP32 _esp-idf_**, and supports master mode only.
 
@@ -20,7 +21,7 @@ I2Cbus0.begin(GPIO_NUM_16, GPIO_NUM_17);
 I2Cbus1.begin(GPIO_NUM_21, GPIO_NUM_22);
 // OR
 // create an object which manages port 0
-I2Cbus_t myI2C(I2C_PORT_0);
+I2Cbus_t myI2C(I2C_NUM_0);
 // configure and initialize
 myI2C.begin(GPIO_NUM_21, GPIO_NUM_22, 400000);  // 400KHz
 
@@ -55,6 +56,12 @@ esp_err_t readBytes(uint8_t devAddr, uint8_t regAddr, size_t length, uint8_t *da
 esp_err_t testConnection(uint8_t devAddr, int32_t timeout = -1);
 void scanner();
 ```
+
+## Menuconfig
+
+You can change some library settings in menuconfig under components and I2Cbus.
+
+![menuconfig-I2Cbus](https://raw.githubusercontent.com/natanaeljr/gh-assets/master/I2Cbus-esp32/menuconfig1.png "Menuconfig I2Cbus")
 
 ---
 
