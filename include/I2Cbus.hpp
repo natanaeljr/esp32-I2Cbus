@@ -1,6 +1,30 @@
+/* =========================================================================
+I2Cbus library is placed under the MIT License
+Copyright 2017 Natanael Josue Rabello. All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to
+deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE SOFTWARE.
+ ========================================================================= */
+
 #ifndef _I2CBUS_HPP_
 #define _I2CBUS_HPP_
 
+#include <stdint.h>
 #include "driver/i2c.h"
 #include "driver/gpio.h"
 #include "esp_err.h"
@@ -25,7 +49,9 @@ extern I2Cbus_t I2Cbus0;        /*!< port: I2C_NUM_0 */
 extern I2Cbus_t I2Cbus1;        /*!< port: I2C_NUM_1 */
 
 
-
+/* ^^^^^^
+ * I2CBUS
+ * ^^^^^^ */
 class I2Cbus_t {
 private:
     i2c_port_t port;            /*!< I2C port: I2C_NUM_0 or I2C_NUM_1 */
@@ -47,8 +73,10 @@ public:
      *                       - ESP_ERR_INVALID_ARG Parameter error
      *                       - ESP_FAIL Driver install error
      */
-    esp_err_t begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num, uint32_t clk_speed = I2CBUS_CLOCKSPEED_DEFAULT);
-    esp_err_t begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num, 
+    esp_err_t begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num,
+                    uint32_t clk_speed = I2CBUS_CLOCKSPEED_DEFAULT);
+
+    esp_err_t begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num,
                     gpio_pullup_t sda_pullup_en, gpio_pullup_t scl_pullup_en, 
                     uint32_t clk_speed = I2CBUS_CLOCKSPEED_DEFAULT);
 
@@ -67,12 +95,15 @@ public:
      * *** WRITING interface ***
      * @brief  I2C commands for writing to a 8-bit slave device register.
      *         All of them returns standard esp_err_t codes. So it can be used
-     *         within ESP_ERROR_CHECK();
+     *         with ESP_ERROR_CHECK();
      * @param  devAddr   [I2C slave device register]
-     * @param  regAddr [Register address to write to]
-     * @param  bit       [Number of the bit position to write (bit 7~0)]
+     * @param  regAddr   [Register address to write to]
+     * @param  bitNum    [Bit position number to write to (bit 7~0)]
+     * @param  bitStart  [Start bit number when writing a bit-sequence (MSB)]
      * @param  data      [Value(s) to be write to the register]
      * @param  length    [Number of bytes to write (should be within the data buffer size)]
+     *                   [writeBits() -> Number of bits after bitStart (including)]
+     * @param  timeout   [Custom timeout for the particular call]
      * @return  - ESP_OK Success
      *          - ESP_ERR_INVALID_ARG Parameter error
      *          - ESP_FAIL Sending command error, slave doesn't ACK the transfer.
@@ -88,12 +119,14 @@ public:
      * *** READING interface ***
      * @breif  I2C commands for reading a 8-bit slave device register.
      *         All of them returns standard esp_err_t codes.So it can be used
-     *         within ESP_ERROR_CHECK();
+     *         with ESP_ERROR_CHECK();
      * @param  devAddr   [I2C slave device register]
-     * @param  regAddr [Register address to read from]
-     * @param  bit       [Number of the bit position to write (bit 7~0)]
-     * @param  data      [Buffer to store the read data(s)]
+     * @param  regAddr   [Register address to read from]
+     * @param  bitNum    [Bit position number to write to (bit 7~0)]
+     * @param  bitStart  [Start bit number when writing a bit-sequence (MSB)]
+     * @param  data      [Buffer to store the read value(s)]
      * @param  length    [Number of bytes to read (should be within the data buffer size)]
+     * @param  timeout   [Custom timeout for the particular call]
      * @return  - ESP_OK Success
      *          - ESP_ERR_INVALID_ARG Parameter error
      *          - ESP_FAIL Sending command error, slave doesn't ACK the transfer.
@@ -107,7 +140,8 @@ public:
 
     /**
      * @brief  Quick check to see if a slave device responds.
-     * @param  devAddr [I2C slave device register]
+     * @param  devAddr   [I2C slave device register]
+     * @param  timeout   [Custom timeout for the particular call]
      * @return  - ESP_OK Success
      *          - ESP_ERR_INVALID_ARG Parameter error
      *          - ESP_FAIL Sending command error, slave doesn't ACK the transfer.
@@ -121,10 +155,6 @@ public:
      */
     void scanner();
 };
-
-
-
-
 
 
 
