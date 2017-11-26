@@ -1,32 +1,42 @@
-**I2Cbus**
-==========
+# **I2Cbus**
 
-I2C interface library for working with **ESP32 _esp-idf_**, and supports master mode only.
+I2C interface library in C++ for working with **Espressif ESP32 IoT Development Framework _(esp-idf)_**, that supports master mode.
 
-The intention of this library is to read and write to I2C slave devices with ease, by providing quick and specific functions aimed at 8-bit registers. It is based on I2Cdev by Jeff Rowberg.
+The intention of this library is to read and write to I2C slave devices (most sensors) with ease, by providing quick and specific functions aimed for 8-bit data. It is based on I2Cdev by Jeff Rowberg.
+
+## Install
 
 You can clone it right into your project components directory or in your specific library path.
 
-`git clone https://github.com/natanaeljr/I2Cbus-esp32.git I2Cbus`
+```git
+
+ git clone https://github.com/natanaeljr/I2Cbus-esp32.git I2Cbus
+
+```
 
 ## Usage
 
-The library provides two ready-to-use objects: `I2Cbus0` which corresponds to ESP32 I2C port 0, and `I2Cbus1` which corresponds to ESP32 I2C port 1. However you can create your own object as you will.
+The ESP32 has two I2C controllers which can control two separated buses, so the library provides two ready-to-use objects:
+
+`I2Cbus0` which corresponds to the I2C controller port 0, and
+
+`I2Cbus1` which corresponds to the I2C controller port 1.
+
+However you can create your own object as you wish.
 
 ### Example:
 
 ```C++
 // default objects
-I2Cbus0.begin(GPIO_NUM_16, GPIO_NUM_17);
-I2Cbus1.begin(GPIO_NUM_21, GPIO_NUM_22);
-// OR
-// create an object which manages port 0
+I2Cbus0.begin(GPIO_NUM_16, GPIO_NUM_17);  // sda, scl, default clock 100 Mhz
+I2Cbus1.begin(GPIO_NUM_21, GPIO_NUM_22, 400000);  // sda, scl, 400 Mhz
+// OR create an object which manages controller num 0
 I2Cbus_t myI2C(I2C_NUM_0);
 // configure and initialize
-myI2C.begin(GPIO_NUM_21, GPIO_NUM_22, 400000);  // 400KHz
+myI2C.begin(GPIO_NUM_21, GPIO_NUM_22);
 
-// call methods
-myI2C.setTimeout(100);  // default 1000ms
+// call some methods
+myI2C.setTimeout(10);  // default is 1000ms
 myI2C.scanner();
 myI2C.close();
 ```
@@ -57,12 +67,18 @@ esp_err_t testConnection(uint8_t devAddr, int32_t timeout = -1);
 void scanner();
 ```
 
+Each method have an optional custom timeout for that specific call, if this value is not passed (default `-1`) or is `< 0`, it will use the default timeout. You can change the default timeout by calling `setTimeout(ms)`.
+
+@see header file for more notes and descriptions.
+
 ## Menuconfig
 
-You can change some library settings in menuconfig under components and I2Cbus.
+You can change some settings (for debugging) in menuconfig under components and I2Cbus.
 
 ![menuconfig-I2Cbus](https://raw.githubusercontent.com/natanaeljr/gh-assets/master/I2Cbus-esp32/menuconfig1.png "Menuconfig I2Cbus")
 
 ---
 
-Copyright © 2017 Natanael Josue Rabello, _natanael.rabello@outlook.com_
+See also: SPIbus library https://github.com/natanaeljr/SPIbus-esp32
+
+Copyright © 2017 Natanael Josue Rabello [_natanael.rabello@outlook.com_]
