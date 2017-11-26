@@ -22,29 +22,23 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
  ========================================================================= */
 
+#include <stdio.h>
 #include <stdint.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
-#include "driver/i2c.h"
 #include "esp_log.h"
-
 #include "I2Cbus.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-    void app_main(void);
-}
-#endif
 
 /**
  * I2Cbus0 and I2Cbus1 are the default objects
  * */
 
-void app_main() {
+extern "C" void app_main() {
     printf(LOG_BOLD("97") "\n[APP_MAIN]" LOG_RESET_COLOR "\n");
     
-    I2Cbus0.begin(GPIO_NUM_21, GPIO_NUM_22, 400000U);
+    ESP_ERROR_CHECK(I2Cbus0.begin(GPIO_NUM_21, GPIO_NUM_22, 400000U));
     I2Cbus0.setTimeout(10);
     I2Cbus0.scanner();
 
@@ -56,5 +50,6 @@ void app_main() {
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
     
+    I2Cbus0.close();
     vTaskDelay(portMAX_DELAY);
 }

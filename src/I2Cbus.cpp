@@ -22,6 +22,7 @@ IN THE SOFTWARE.
  ========================================================================= */
 
 #include "I2Cbus.hpp"
+#include <stdio.h>
 #include <stdint.h>
 #include "driver/i2c.h"
 #include "driver/gpio.h"
@@ -123,9 +124,9 @@ esp_err_t I2Cbus_t::writeBytes(uint8_t devAddr, uint8_t regAddr, size_t length, 
     esp_err_t err = i2c_master_cmd_begin(port, cmd, (timeout < 0 ? ticksToWait : pdMS_TO_TICKS(timeout)));
     i2c_cmd_link_delete(cmd);
     #if defined CONFIG_I2CBUS_LOG_READWRITES
-        if (!err) { 
-            char str[length*5+1]; 
-            for(size_t i = 0; i < length; i++) 
+        if (!err) {
+            char str[length*5+1];
+            for (size_t i = 0; i < length; i++)
                 sprintf(str+i*5, "0x%s%X ", (data[i] < 0x10 ? "0" : ""), data[i]);
             I2CBUS_LOG_RW("[port:%d, slave:0x%X] Write %d bytes to register 0x%X, data: %s", port, devAddr, length, regAddr, str);
         }
@@ -180,9 +181,9 @@ esp_err_t I2Cbus_t::readBytes(uint8_t devAddr, uint8_t regAddr, size_t length, u
     esp_err_t err = i2c_master_cmd_begin(port, cmd, (timeout < 0 ? ticksToWait : pdMS_TO_TICKS(timeout)));
     i2c_cmd_link_delete(cmd);
     #if defined CONFIG_I2CBUS_LOG_READWRITES
-        if (!err) { 
-            char str[length*5+1]; 
-            for(size_t i = 0; i < length; i++) 
+        if (!err) {
+            char str[length*5+1];
+            for(size_t i = 0; i < length; i++)
             sprintf(str+i*5, "0x%s%X ", (data[i] < 0x10 ? "0" : ""), data[i]);
             I2CBUS_LOG_RW("[port:%d, slave:0x%X] Read %d bytes from register 0x%X, data: %s", port, devAddr, length, regAddr, str);
         }

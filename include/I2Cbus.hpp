@@ -41,7 +41,7 @@ IN THE SOFTWARE.
 #define ACK_LEVEL           (0x0)       /*!< Burst readings are ACK*/
 #define NACK_LEVEL          (0x1)       /*!< Last reading is NACK*/
 
-
+// Forward declaration
 class I2Cbus_t;
 
 // Default Objects
@@ -53,12 +53,12 @@ extern I2Cbus_t I2Cbus1;        /*!< port: I2C_NUM_1 */
  * I2CBUS
  * ^^^^^^ */
 class I2Cbus_t {
-private:
+ private:
     i2c_port_t port;            /*!< I2C port: I2C_NUM_0 or I2C_NUM_1 */
     uint32_t ticksToWait;       /*!< Timeout in ticks for read and write */
 
-public:
-    I2Cbus_t(i2c_port_t port);
+ public:
+    explicit I2Cbus_t(i2c_port_t port);
     ~I2Cbus_t();
 
     /** *** I2C Begin ***
@@ -77,7 +77,7 @@ public:
                     uint32_t clk_speed = I2CBUS_CLOCKSPEED_DEFAULT);
 
     esp_err_t begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num,
-                    gpio_pullup_t sda_pullup_en, gpio_pullup_t scl_pullup_en, 
+                    gpio_pullup_t sda_pullup_en, gpio_pullup_t scl_pullup_en,
                     uint32_t clk_speed = I2CBUS_CLOCKSPEED_DEFAULT);
 
     /**
