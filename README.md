@@ -18,20 +18,20 @@ You can clone it right into your project components directory or in your specifi
 
 The ESP32 has two I2C controllers which can control two separated buses, so the library provides two ready-to-use objects:
 
-`I2Cbus0` which corresponds to the I2C controller port 0, and
+`i2c0` which corresponds to the I2C controller port 0, and
 
-`I2Cbus1` which corresponds to the I2C controller port 1.
+`i2c1` which corresponds to the I2C controller port 1.
 
 However you can create your own object as you wish.
 
-### Example:
+### Example
 
 ```C++
 // default objects
-I2Cbus0.begin(GPIO_NUM_16, GPIO_NUM_17);  // sda, scl, default clock 100 Mhz
-I2Cbus1.begin(GPIO_NUM_21, GPIO_NUM_22, 400000);  // sda, scl, 400 Mhz
+i2c0.begin(GPIO_NUM_16, GPIO_NUM_17);  // sda, scl, default clock 100 Mhz
+i2c1.begin(GPIO_NUM_21, GPIO_NUM_22, 400000);  // sda, scl, 400 Mhz
 // OR create an object which manages controller num 0
-I2Cbus_t myI2C(I2C_NUM_0);
+I2C_t myI2C(I2C_NUM_0);
 // configure and initialize
 myI2C.begin(GPIO_NUM_21, GPIO_NUM_22);
 
@@ -41,7 +41,7 @@ myI2C.scanner();
 myI2C.close();
 ```
 
-### List of methods:
+### List of methods
 
 ```C++
 // SETUP

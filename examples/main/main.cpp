@@ -31,25 +31,25 @@ IN THE SOFTWARE.
 #include "I2Cbus.hpp"
 
 
-/**
- * I2Cbus0 and I2Cbus1 are the default objects
- * */
 
 extern "C" void app_main() {
-    printf(LOG_BOLD("97") "\n[APP_MAIN]" LOG_RESET_COLOR "\n");
-    
-    ESP_ERROR_CHECK(I2Cbus0.begin(GPIO_NUM_21, GPIO_NUM_22, 400000U));
-    I2Cbus0.setTimeout(10);
-    I2Cbus0.scanner();
+    printf(">I2Cbus Example \n");
+    fflush(stdout);
 
-    I2Cbus0.writeBit(0x69, 0x6B, 6, false);
+    I2C_t& myI2C = i2c0;  // i2c0 and i2c1 are the default objects
+    
+    ESP_ERROR_CHECK( myI2C.begin(GPIO_NUM_21, GPIO_NUM_22, 400000));
+    myI2C.setTimeout(10);
+    myI2C.scanner();
+
+    myI2C.writeBit(0x69, 0x6B, 6, 0);
     
     uint8_t buffer[6];
-    while(true) {
-        I2Cbus0.readBytes(0x68, 0x6F, 6, buffer);
+    while (1) {
+        myI2C.readBytes(0x68, 0x6F, 6, buffer);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
     
-    I2Cbus0.close();
+    myI2C.close();
     vTaskDelay(portMAX_DELAY);
 }

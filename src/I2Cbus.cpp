@@ -46,25 +46,25 @@ static const char* TAG __attribute__((unused)) = "I2Cbus";
 /*******************************************************************************
  * OBJECTS
  ******************************************************************************/
-I2Cbus_t I2Cbus0 = I2Cbus_t(I2C_NUM_0);
-I2Cbus_t I2Cbus1 = I2Cbus_t(I2C_NUM_1);
+I2C i2c0 = I2C(I2C_NUM_0);
+I2C i2c1 = I2C(I2C_NUM_1);
 
 
 /*******************************************************************************
  * SETUP
  ******************************************************************************/
-I2Cbus_t::I2Cbus_t(i2c_port_t port) : port(port), ticksToWait(pdMS_TO_TICKS(I2CBUS_TIMEOUT_DEFAULT)) {
+I2C::I2C(i2c_port_t port) : port(port), ticksToWait(pdMS_TO_TICKS(I2CBUS_TIMEOUT_DEFAULT)) {
 }
 
-I2Cbus_t::~I2Cbus_t() {
+I2C::~I2C() {
     close();
 }
 
-esp_err_t I2Cbus_t::begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num, uint32_t clk_speed) {
+esp_err_t I2C::begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num, uint32_t clk_speed) {
     return begin(sda_io_num, scl_io_num, GPIO_PULLUP_ENABLE, GPIO_PULLUP_ENABLE, clk_speed);
 }
 
-esp_err_t I2Cbus_t::begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num, gpio_pullup_t sda_pullup_en, gpio_pullup_t scl_pullup_en, uint32_t clk_speed) {
+esp_err_t I2C::begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num, gpio_pullup_t sda_pullup_en, gpio_pullup_t scl_pullup_en, uint32_t clk_speed) {
     i2c_config_t conf;
     conf.mode = I2C_MODE_MASTER;
     conf.sda_io_num = sda_io_num;
@@ -77,11 +77,11 @@ esp_err_t I2Cbus_t::begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num, gpio_pul
     return err;
 }
 
-esp_err_t I2Cbus_t::close() {
+esp_err_t I2C::close() {
     return i2c_driver_delete(port);
 }
 
-void I2Cbus_t::setTimeout(uint32_t ms) {
+void I2C::setTimeout(uint32_t ms) {
     ticksToWait = pdMS_TO_TICKS(ms);
 }
 
@@ -90,7 +90,7 @@ void I2Cbus_t::setTimeout(uint32_t ms) {
 /*******************************************************************************
  * WRITING
  ******************************************************************************/
-esp_err_t I2Cbus_t::writeBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t data, int32_t timeout) {
+esp_err_t I2C::writeBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t data, int32_t timeout) {
     uint8_t buffer;
     esp_err_t err = readByte(devAddr, regAddr, &buffer, timeout);
     if (err) return err;
@@ -98,7 +98,7 @@ esp_err_t I2Cbus_t::writeBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, u
     return writeByte(devAddr, regAddr, buffer, timeout);
 }
 
-esp_err_t I2Cbus_t::writeBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data, int32_t timeout) {
+esp_err_t I2C::writeBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data, int32_t timeout) {
     uint8_t buffer;
     esp_err_t err = readByte(devAddr, regAddr, &buffer, timeout);
     if (err) return err;
@@ -110,11 +110,11 @@ esp_err_t I2Cbus_t::writeBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart
     return writeByte(devAddr, regAddr, buffer, timeout);
 }
 
-esp_err_t I2Cbus_t::writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t data, int32_t timeout) {
+esp_err_t I2C::writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t data, int32_t timeout) {
     return writeBytes(devAddr, regAddr, 1, &data, timeout);
 }
 
-esp_err_t I2Cbus_t::writeBytes(uint8_t devAddr, uint8_t regAddr, size_t length, const uint8_t *data, int32_t timeout) {
+esp_err_t I2C::writeBytes(uint8_t devAddr, uint8_t regAddr, size_t length, const uint8_t *data, int32_t timeout) {
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (devAddr << 1) | I2C_MASTER_WRITE, ACK_CHECK_ENABLE);
@@ -147,11 +147,11 @@ esp_err_t I2Cbus_t::writeBytes(uint8_t devAddr, uint8_t regAddr, size_t length, 
 /*******************************************************************************
  * READING
  ******************************************************************************/
-esp_err_t I2Cbus_t::readBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t *data, int32_t timeout) {
+esp_err_t I2C::readBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t *data, int32_t timeout) {
     return readBits(devAddr, regAddr, bitNum, 1, data, timeout);
 }
 
-esp_err_t I2Cbus_t::readBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t *data, int32_t timeout) {
+esp_err_t I2C::readBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t *data, int32_t timeout) {
     uint8_t buffer;
     esp_err_t err = readByte(devAddr, regAddr, &buffer, timeout);
     if(!err) {
@@ -163,11 +163,11 @@ esp_err_t I2Cbus_t::readBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart,
     return err;
 }
 
-esp_err_t I2Cbus_t::readByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data, int32_t timeout) {
+esp_err_t I2C::readByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data, int32_t timeout) {
     return readBytes(devAddr, regAddr, 1, data, timeout);
 }
 
-esp_err_t I2Cbus_t::readBytes(uint8_t devAddr, uint8_t regAddr, size_t length, uint8_t *data, int32_t timeout) {
+esp_err_t I2C::readBytes(uint8_t devAddr, uint8_t regAddr, size_t length, uint8_t *data, int32_t timeout) {
     if(length == 0) return ESP_ERR_INVALID_SIZE;
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
@@ -204,7 +204,7 @@ esp_err_t I2Cbus_t::readBytes(uint8_t devAddr, uint8_t regAddr, size_t length, u
 /*******************************************************************************
  * UTILS
  ******************************************************************************/
-esp_err_t I2Cbus_t::testConnection(uint8_t devAddr, int32_t timeout) {
+esp_err_t I2C::testConnection(uint8_t devAddr, int32_t timeout) {
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (devAddr << 1) | I2C_MASTER_WRITE, ACK_CHECK_ENABLE);
@@ -214,7 +214,7 @@ esp_err_t I2Cbus_t::testConnection(uint8_t devAddr, int32_t timeout) {
     return err;
 }
 
-void I2Cbus_t::scanner() {
+void I2C::scanner() {
     printf(LOG_COLOR_W "\n>> I2C scanning ..." LOG_RESET_COLOR "\n");
     uint8_t count = 0;
     for (size_t i = 0x3; i < 0x78; i++) {

@@ -42,24 +42,25 @@ IN THE SOFTWARE.
 #define NACK_LEVEL          (0x1)       /*!< Last reading is NACK*/
 
 // Forward declaration
-class I2Cbus_t;
+class I2C;
 
 // Default Objects
-extern I2Cbus_t I2Cbus0;        /*!< port: I2C_NUM_0 */
-extern I2Cbus_t I2Cbus1;        /*!< port: I2C_NUM_1 */
+extern I2C i2c0;        /*!< port: I2C_NUM_0 */
+extern I2C i2c1;        /*!< port: I2C_NUM_1 */
 
 
-/* ^^^^^^
- * I2CBUS
- * ^^^^^^ */
-class I2Cbus_t {
+/* ^^^
+ * I2C
+ * ^^^ */
+typedef
+class I2C {
  private:
     i2c_port_t port;            /*!< I2C port: I2C_NUM_0 or I2C_NUM_1 */
     uint32_t ticksToWait;       /*!< Timeout in ticks for read and write */
 
  public:
-    explicit I2Cbus_t(i2c_port_t port);
-    ~I2Cbus_t();
+    explicit I2C(i2c_port_t port);
+    ~I2C();
 
     /** *** I2C Begin ***
      * @brief  Config I2C bus and Install Driver
@@ -154,7 +155,7 @@ class I2Cbus_t {
      * I2C scanner utility, prints out all device addresses found on I2Cbus.
      */
     void scanner();
-};
+} I2C_t;
 
 
 
