@@ -28,16 +28,17 @@ However you can create your own object as you wish.
 
 ```C++
 // default objects
-i2c0.begin(GPIO_NUM_16, GPIO_NUM_17);  // sda, scl, default clock 100 Mhz
-i2c1.begin(GPIO_NUM_21, GPIO_NUM_22, 400000);  // sda, scl, 400 Mhz
+i2c0.begin(GPIO_NUM_16, GPIO_NUM_17);  // sda, scl, default clock 100 Khz
+i2c1.begin(GPIO_NUM_21, GPIO_NUM_22, 400000);  // sda, scl, 400 Khz
 // OR create an object which manages controller num 0
 I2C_t myI2C(I2C_NUM_0);
 // configure and initialize
 myI2C.begin(GPIO_NUM_21, GPIO_NUM_22);
-
-// call some methods
-myI2C.setTimeout(10);  // default is 1000ms
+myI2C.setTimeout(10);  // default was 1000ms
+// start using
 myI2C.scanner();
+myI2C.writeByte(DEVICE_ADDR, REG_ADDR, DATA);
+myI2C.readBytes(DEVICE_ADDR, REG_ADDR, LENGTH, BUFFER);
 myI2C.close();
 ```
 
