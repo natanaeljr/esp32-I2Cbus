@@ -158,5 +158,11 @@ class I2C {
 } I2C_t;
 
 
+/* Get default objects */
+constexpr I2C_t& getI2C(i2c_port_t port) {
+    return port == 0 ? i2c0 : i2c1;
+}
+
+
 
 #endif /* end of include guard: _I2CBUS_H_ */
