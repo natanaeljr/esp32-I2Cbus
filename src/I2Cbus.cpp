@@ -137,7 +137,7 @@ esp_err_t I2C::writeBytes(uint8_t devAddr, uint8_t regAddr, size_t length, const
         #else
             if(err) {
         #endif
-        I2CBUS_LOGE("[port:%d, slave:0x%X] Failed to write %d bytes to register 0x%X, error: 0x%X", port, devAddr, length, regAddr, err);
+        I2CBUS_LOGE("[port:%d, slave:0x%X] Failed to write %d bytes to__ register 0x%X, error: 0x%X", port, devAddr, length, regAddr, err);
         }
     #endif
     return err;
@@ -185,7 +185,7 @@ esp_err_t I2C::readBytes(uint8_t devAddr, uint8_t regAddr, size_t length, uint8_
             char str[length*5+1];
             for(size_t i = 0; i < length; i++)
             sprintf(str+i*5, "0x%s%X ", (data[i] < 0x10 ? "0" : ""), data[i]);
-            I2CBUS_LOG_RW("[port:%d, slave:0x%X] Read %d bytes from register 0x%X, data: %s", port, devAddr, length, regAddr, str);
+            I2CBUS_LOG_RW("[port:%d, slave:0x%X] Read_ %d bytes from register 0x%X, data: %s", port, devAddr, length, regAddr, str);
         }
     #endif
     #if defined CONFIG_I2CBUS_LOG_ERRORS
@@ -215,10 +215,11 @@ esp_err_t I2C::testConnection(uint8_t devAddr, int32_t timeout) {
 }
 
 void I2C::scanner() {
+    constexpr int32_t scanTimeout = 20;
     printf(LOG_COLOR_W "\n>> I2C scanning ..." LOG_RESET_COLOR "\n");
     uint8_t count = 0;
     for (size_t i = 0x3; i < 0x78; i++) {
-        if(testConnection(i) == ESP_OK) {
+        if(testConnection(i, scanTimeout) == ESP_OK) {
             printf(LOG_COLOR_W "- Device found at address 0x%X%s", i, LOG_RESET_COLOR "\n");
             count++;
         }
