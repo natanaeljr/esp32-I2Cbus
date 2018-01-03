@@ -30,29 +30,25 @@ IN THE SOFTWARE.
 #include "esp_err.h"
 
 
-// Defaults
-#define I2CBUS_CLOCKSPEED_DEFAULT  (100000U)   /*!< Clock speed in Hz, default: 100KHz */
-#define I2CBUS_TIMEOUT_DEFAULT     (1000)      /*!< Timeout in milliseconds */
-
-// Receive Acknowledge
-#define ACK_CHECK_ENABLE    (0x1)       /*!< Every write is checked by default*/
-#define ACK_CHECK_DISABLE   (0x0)
-// Send Acknowledge
-#define ACK_LEVEL           (0x0)       /*!< Burst readings are ACK*/
-#define NACK_LEVEL          (0x1)       /*!< Last reading is NACK*/
-
-// Forward declaration
+/* ^^^^^^
+ * I2Cbus
+ * ^^^^^^ */
+namespace i2cbus {
+constexpr uint32_t kDefaultClockSpeed = 100000;  /*!< Clock speed in Hz, default: 100KHz */
+constexpr uint32_t kDefaultTimeout = 1000;       /*!< Timeout in milliseconds, default: 1000ms */
 class I2C;
+}  // namespace i2cbus
+
+// I2Cbus type
+using I2C_t = i2cbus::I2C;
 
 // Default Objects
-extern I2C i2c0;        /*!< port: I2C_NUM_0 */
-extern I2C i2c1;        /*!< port: I2C_NUM_1 */
+extern I2C_t i2c0;        /*!< port: I2C_NUM_0 */
+extern I2C_t i2c1;        /*!< port: I2C_NUM_1 */
 
 
-/* ^^^
- * I2C
- * ^^^ */
-typedef
+// I2C class definition
+namespace i2cbus {
 class I2C {
  private:
     i2c_port_t port;            /*!< I2C port: I2C_NUM_0 or I2C_NUM_1 */
@@ -74,12 +70,11 @@ class I2C {
      *                       - ESP_ERR_INVALID_ARG Parameter error
      *                       - ESP_FAIL Driver install error
      */
-    esp_err_t begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num,
-                    uint32_t clk_speed = I2CBUS_CLOCKSPEED_DEFAULT);
+    esp_err_t begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num, uint32_t clk_speed = kDefaultClockSpeed);
 
     esp_err_t begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num,
                     gpio_pullup_t sda_pullup_en, gpio_pullup_t scl_pullup_en,
-                    uint32_t clk_speed = I2CBUS_CLOCKSPEED_DEFAULT);
+                    uint32_t clk_speed = kDefaultClockSpeed);
 
     /**
      * Stop I2C bus and unninstall driver
@@ -152,10 +147,12 @@ class I2C {
     esp_err_t testConnection(uint8_t devAddr, int32_t timeout = -1);
 
     /**
-     * I2C scanner utility, prints out all device addresses found on I2Cbus.
+     * I2C scanner utility, prints out all device addresses found on this I2C bus.
      */
     void scanner();
-} I2C_t;
+};
+
+}  // namespace i2cbus
 
 
 /* Get default objects */
