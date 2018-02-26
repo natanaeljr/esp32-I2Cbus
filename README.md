@@ -9,9 +9,7 @@ The intention of this library is to read and write to I2C slave devices (most se
 You can clone it right into your project components directory or in your specific library path.
 
 ```git
-
- git clone https://github.com/natanaeljr/I2Cbus-esp32.git I2Cbus
-
+ git clone https://github.com/natanaeljr/esp32-I2Cbus.git I2Cbus
 ```
 
 ## Usage
@@ -80,6 +78,6 @@ You can change some settings (for debugging) in menuconfig under components and 
 
 ---
 
-See also: SPIbus library https://github.com/natanaeljr/SPIbus-esp32
+See also: SPIbus library https://github.com/natanaeljr/esp32-SPIbus
 
 Copyright © 2017 Natanael Josue Rabello [_natanael.rabello@outlook.com_]
