@@ -30,6 +30,15 @@ IN THE SOFTWARE.
 #include "driver/i2c.h"
 #include "driver/gpio.h"
 
+#if defined CONFIG_I2CBUS_FREERTOS_TASK_MUTEX
+#include "freertos/FreeRTOS.h"
+#define SEMAPHORE_TAKE_RECURSIVE() xSemaphoreTakeRecursive(_i2c_mutex, portMAX_DELAY)
+#define SEMAPHORE_GIVE_RECURSIVE() xSemaphoreGiveRecursive(_i2c_mutex)
+#else
+#define SEMAPHORE_TAKE_RECURSIVE() 
+#define SEMAPHORE_GIVE_RECURSIVE() 
+#endif
+
 
 #if defined   CONFIG_I2CBUS_LOG_RW_LEVEL_INFO
 #define I2CBUS_LOG_RW(format, ...) ESP_LOGI(TAG, format, ##__VA_ARGS__)
@@ -82,17 +91,26 @@ esp_err_t I2C::begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num, gpio_pullup_t
     conf.scl_io_num = scl_io_num;
     conf.scl_pullup_en = scl_pullup_en;
     conf.master.clk_speed = clk_speed;
+    SEMAPHORE_TAKE_RECURSIVE();
     esp_err_t err = i2c_param_config(port, &conf);
-    if (!err) err = i2c_driver_install(port, conf.mode, 0, 0, 0);
+    if (!err) {
+        err = i2c_driver_install(port, conf.mode, 0, 0, 0);
+    }
+    SEMAPHORE_GIVE_RECURSIVE();
     return err;
 }
 
 esp_err_t I2C::close() {
-    return i2c_driver_delete(port);
+    SEMAPHORE_TAKE_RECURSIVE();
+    esp_err_t err = i2c_driver_delete(port);
+    SEMAPHORE_GIVE_RECURSIVE();
+    return err;
 }
 
 void I2C::setTimeout(uint32_t ms) {
+    SEMAPHORE_TAKE_RECURSIVE();
     ticksToWait = pdMS_TO_TICKS(ms);
+    SEMAPHORE_GIVE_RECURSIVE();
 }
 
 
@@ -102,22 +120,30 @@ void I2C::setTimeout(uint32_t ms) {
  ******************************************************************************/
 esp_err_t I2C::writeBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t data, int32_t timeout) {
     uint8_t buffer;
+    SEMAPHORE_TAKE_RECURSIVE();
     esp_err_t err = readByte(devAddr, regAddr, &buffer, timeout);
-    if (err) return err;
+    if (!err) {
     buffer = data ? (buffer | (1 << bitNum)) : (buffer & ~(1 << bitNum));
-    return writeByte(devAddr, regAddr, buffer, timeout);
+    err = writeByte(devAddr, regAddr, buffer, timeout);
+    }
+    SEMAPHORE_GIVE_RECURSIVE();
+    return err;
 }
 
 esp_err_t I2C::writeBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data, int32_t timeout) {
     uint8_t buffer;
+    SEMAPHORE_TAKE_RECURSIVE();
     esp_err_t err = readByte(devAddr, regAddr, &buffer, timeout);
-    if (err) return err;
+    if (!err) {
     uint8_t mask = ((1 << length) - 1) << (bitStart - length + 1);
     data <<= (bitStart - length + 1);
     data &= mask;
     buffer &= ~mask;
     buffer |= data;
-    return writeByte(devAddr, regAddr, buffer, timeout);
+    err = writeByte(devAddr, regAddr, buffer, timeout);
+    }
+    SEMAPHORE_GIVE_RECURSIVE();
+    return err;
 }
 
 esp_err_t I2C::writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t data, int32_t timeout) {
@@ -125,6 +151,7 @@ esp_err_t I2C::writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t data, int32_t
 }
 
 esp_err_t I2C::writeBytes(uint8_t devAddr, uint8_t regAddr, size_t length, const uint8_t *data, int32_t timeout) {
+    SEMAPHORE_TAKE_RECURSIVE();
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (devAddr << 1) | I2C_MASTER_WRITE, I2C_MASTER_ACK_EN);
@@ -133,6 +160,7 @@ esp_err_t I2C::writeBytes(uint8_t devAddr, uint8_t regAddr, size_t length, const
     i2c_master_stop(cmd);
     esp_err_t err = i2c_master_cmd_begin(port, cmd, (timeout < 0 ? ticksToWait : pdMS_TO_TICKS(timeout)));
     i2c_cmd_link_delete(cmd);
+    SEMAPHORE_GIVE_RECURSIVE();
 #if defined CONFIG_I2CBUS_LOG_READWRITES
     if (!err) {
         char str[length*5+1];
@@ -180,6 +208,7 @@ esp_err_t I2C::readByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data, int32_t
 }
 
 esp_err_t I2C::readBytes(uint8_t devAddr, uint8_t regAddr, size_t length, uint8_t *data, int32_t timeout) {
+    SEMAPHORE_TAKE_RECURSIVE();
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (devAddr << 1) | I2C_MASTER_WRITE, I2C_MASTER_ACK_EN);
@@ -190,6 +219,7 @@ esp_err_t I2C::readBytes(uint8_t devAddr, uint8_t regAddr, size_t length, uint8_
     i2c_master_stop(cmd);
     esp_err_t err = i2c_master_cmd_begin(port, cmd, (timeout < 0 ? ticksToWait : pdMS_TO_TICKS(timeout)));
     i2c_cmd_link_delete(cmd);
+    SEMAPHORE_GIVE_RECURSIVE();
 #if defined CONFIG_I2CBUS_LOG_READWRITES
     if (!err) {
         char str[length*5+1];
@@ -216,17 +246,20 @@ esp_err_t I2C::readBytes(uint8_t devAddr, uint8_t regAddr, size_t length, uint8_
  * UTILS
  ******************************************************************************/
 esp_err_t I2C::testConnection(uint8_t devAddr, int32_t timeout) {
+    SEMAPHORE_TAKE_RECURSIVE();
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (devAddr << 1) | I2C_MASTER_WRITE, I2C_MASTER_ACK_EN);
     i2c_master_stop(cmd);
     esp_err_t err = i2c_master_cmd_begin(port, cmd, (timeout < 0 ? ticksToWait : pdMS_TO_TICKS(timeout)));
     i2c_cmd_link_delete(cmd);
+    SEMAPHORE_GIVE_RECURSIVE();
     return err;
 }
 
 void I2C::scanner() {
     constexpr int32_t scanTimeout = 20;
+    SEMAPHORE_TAKE_RECURSIVE();
     printf(LOG_COLOR_W "\n>> I2C scanning ..." LOG_RESET_COLOR "\n");
     uint8_t count = 0;
     for (size_t i = 0x3; i < 0x78; i++) {
@@ -235,9 +268,11 @@ void I2C::scanner() {
             count++;
         }
     }
-    if (count == 0)
+    if (count == 0) {
         printf(LOG_COLOR_E "- No I2C devices found!" LOG_RESET_COLOR "\n");
+    }
     printf("\n");
+    SEMAPHORE_GIVE_RECURSIVE();
 }
 
 }  // namespace i2cbus

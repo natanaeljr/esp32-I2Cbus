@@ -29,6 +29,9 @@ IN THE SOFTWARE.
 #include "driver/gpio.h"
 #include "esp_err.h"
 
+#if defined CONFIG_I2CBUS_FREERTOS_TASK_MUTEX
+#include "freertos/semphr.h"
+#endif
 
 /* ^^^^^^
  * I2Cbus
@@ -53,6 +56,10 @@ class I2C {
  private:
     i2c_port_t port;            /*!< I2C port: I2C_NUM_0 or I2C_NUM_1 */
     uint32_t ticksToWait;       /*!< Timeout in ticks for read and write */
+
+#if defined CONFIG_I2CBUS_FREERTOS_TASK_MUTEX
+    SemaphoreHandle_t _i2c_mutex = xSemaphoreCreateRecursiveMutex();
+#endif
 
  public:
     explicit I2C(i2c_port_t port);

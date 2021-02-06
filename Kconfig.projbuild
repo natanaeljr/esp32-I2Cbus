@@ -1,5 +1,11 @@
 menu "I2Cbus"
 
+config I2CBUS_FREERTOS_TASK_MUTEX
+    bool "Protect calls from multiple FreeRTOS tasks with mutex"
+    default "n"
+    help
+        Protect bus operations from being called from multiple FreeRTOS tasks.
+
 config I2CBUS_LOG_ERRORS
     bool "Log fail read/write operations (errors)"
     depends on ! LOG_DEFAULT_LEVEL_NONE
