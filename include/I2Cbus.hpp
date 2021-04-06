@@ -84,7 +84,7 @@ class I2C {
                     uint32_t clk_speed = kDefaultClockSpeed);
 
     /**
-     * Stop I2C bus and unninstall driver
+     * Stop I2C bus and uninstall driver
      */
     esp_err_t close();
 
