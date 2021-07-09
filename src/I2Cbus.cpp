@@ -82,6 +82,7 @@ esp_err_t I2C::begin(gpio_num_t sda_io_num, gpio_num_t scl_io_num, gpio_pullup_t
     conf.scl_io_num = scl_io_num;
     conf.scl_pullup_en = scl_pullup_en;
     conf.master.clk_speed = clk_speed;
+    conf.clk_flags = 0;
     esp_err_t err = i2c_param_config(port, &conf);
     if (!err) err = i2c_driver_install(port, conf.mode, 0, 0, 0);
     return err;
